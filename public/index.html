@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Ledger | Premium Banking</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="toast-container"></div>
+
+    <!-- Auth Section (Visible when logged out) -->
+    <div id="auth-section" class="container auth-container fade-in">
+        <div class="glass-panel text-center">
+            <h1 class="brand-title">NEXUS <span class="highlight">LEDGER</span></h1>
+            <p class="subtitle">Next-Generation Financial Management</p>
+            
+            <div class="auth-tabs">
+                <button class="tab-btn active" id="tab-login">Sign In</button>
+                <button class="tab-btn" id="tab-register">Create Account</button>
+            </div>
+
+            <form id="login-form" class="auth-form active-form">
+                <div class="input-group">
+                    <input type="email" id="login-email" required placeholder=" ">
+                    <label>Email Address</label>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="login-password" required placeholder=" ">
+                    <label>Password</label>
+                </div>
+                <button type="submit" class="primary-btn pulse">Access Ledger</button>
+            </form>
+
+            <form id="register-form" class="auth-form hidden">
+                <div class="input-group">
+                    <input type="text" id="reg-name" required placeholder=" ">
+                    <label>Account Name</label>
+                </div>
+                <div class="input-group">
+                    <input type="email" id="reg-email" required placeholder=" ">
+                    <label>Email Address</label>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="reg-password" required placeholder=" " minlength="6">
+                    <label>Password (Min 6 chars)</label>
+                </div>
+                <button type="submit" class="primary-btn">Initialize Account</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard Section (Visible when logged in) -->
+    <div id="dashboard-section" class="dashboard-container hidden">
+        <nav class="navbar glass-nav">
+            <div class="nav-content">
+                <h2 class="brand-title-small">NEXUS<span class="highlight">LEDGER</span></h2>
+                <div class="user-controls">
+                    <span id="user-email-display" class="user-tag">user@email.com</span>
+                    <button id="logout-btn" class="secondary-btn btn-small">Disconnect</button>
+                </div>
+            </div>
+        </nav>
+
+        <main class="dashboard-grid">
+            <!-- Balance Card -->
+            <section class="card balance-card glass-panel slide-up">
+                <h3>Total Liquidity</h3>
+                <h1 class="balance-amount" id="main-balance">$0.00</h1>
+                <p class="account-id-label">Account ID: <span id="main-account-id">...</span></p>
+            </section>
+
+            <!-- Actions Card -->
+            <section class="card actions-card glass-panel slide-up delay-1">
+                <h3>Initiate Transfer</h3>
+                <form id="transaction-form">
+                    <div class="input-group">
+                        <select id="tx-type" required>
+                            <option value="DEPOSIT">Deposit Funds</option>
+                            <option value="WITHDRAWAL">Withdraw Funds</option>
+                            <option value="TRANSFER">Transfer to User</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <input type="number" id="tx-amount" step="0.01" min="0.01" required placeholder=" ">
+                        <label>Amount (USD)</label>
+                    </div>
+                    <div class="input-group hidden" id="tx-destination-group">
+                        <input type="text" id="tx-destination" placeholder=" ">
+                        <label>Destination Account ID</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="tx-desc" placeholder=" ">
+                        <label>Memo / Description</label>
+                    </div>
+                    <button type="submit" class="primary-btn w-full">Execute Protocol</button>
+                </form>
+            </section>
+
+            <!-- Ledger History -->
+            <section class="card history-card glass-panel slide-up delay-2">
+                <div class="history-header">
+                    <h3>Ledger History</h3>
+                    <button id="refresh-btn" class="icon-btn" title="Sync Ledger">↻</button>
+                </div>
+                <div class="transaction-list" id="transaction-list">
+                    <!-- Dynamic transactions injected here -->
+                    <div class="empty-state">Synchronizing ledger data...</div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for Pending Approvals -->
+    <div id="approval-modal" class="modal-backdrop hidden">
+        <div class="modal-content glass-panel">
+            <h3>Authorization Required</h3>
+            <p>A <span id="modal-tx-type" class="highlight-text">TRANSFER</span> of <strong id="modal-tx-amount">$0.00</strong> is currently <span class="badge badge-pending">PENDING</span>.</p>
+            <p class="text-muted mt-2">Do you authorize the execution of this transaction into the immutable ledger?</p>
+            <div class="modal-actions mt-4">
+                <button id="modal-cancel" class="secondary-btn">Abort</button>
+                <button id="modal-approve" class="primary-btn pulse">Authorize & Complete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
