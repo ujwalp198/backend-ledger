@@ -1,129 +1,203 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dracula">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexus Ledger | Premium Banking</title>
+    
+    <!-- Tailwind & DaisyUI CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    
+    <!-- Custom Tailwind Config to use Inter font -->
+    <script>
+        tailwind.config = {
+            theme: {
+                fontFamily: {
+                    sans: ['Inter', 'sans-serif'],
+                }
+            }
+        }
+    </script>
 </head>
-<body>
-    <div id="toast-container"></div>
+<body class="min-h-screen bg-base-100 text-base-content overflow-x-hidden antialiased">
+    
+    <!-- Toasts -->
+    <div id="toast-container" class="toast toast-top toast-end z-[9999]"></div>
 
-    <!-- Auth Section (Visible when logged out) -->
-    <div id="auth-section" class="container auth-container fade-in">
-        <div class="glass-panel text-center">
-            <h1 class="brand-title">NEXUS <span class="highlight">LEDGER</span></h1>
-            <p class="subtitle">Next-Generation Financial Management</p>
-            
-            <div class="auth-tabs">
-                <button class="tab-btn active" id="tab-login">Sign In</button>
-                <button class="tab-btn" id="tab-register">Create Account</button>
+    <!-- Auth Section -->
+    <div id="auth-section" class="flex items-center justify-center min-h-screen p-4 transition-all duration-500">
+        <div class="card w-full max-w-md bg-base-200/50 backdrop-blur-xl shadow-2xl border border-white/5">
+            <div class="card-body items-center text-center">
+                <h1 class="text-4xl font-bold tracking-widest mb-1">NEXUS <span class="text-primary">LEDGER</span></h1>
+                <p class="text-sm text-base-content/60 mb-6">Next-Generation Financial Management</p>
+                
+                <!-- Tabs -->
+                <div role="tablist" class="tabs tabs-boxed mb-6 w-full bg-base-300/50 p-1">
+                    <a role="tab" class="tab tab-active transition-all" id="tab-login">Sign In</a>
+                    <a role="tab" class="tab transition-all" id="tab-register">Create Account</a>
+                </div>
+
+                <!-- Login Form -->
+                <form id="login-form" class="w-full flex flex-col gap-4">
+                    <div class="form-control w-full">
+                        <label class="label"><span class="label-text">Email Address</span></label>
+                        <input type="email" id="login-email" required placeholder="user@domain.com" class="input input-bordered w-full bg-base-100/50 focus:border-primary transition-all" />
+                    </div>
+                    <div class="form-control w-full">
+                        <label class="label"><span class="label-text">Password</span></label>
+                        <input type="password" id="login-password" required placeholder="••••••••" class="input input-bordered w-full bg-base-100/50 focus:border-primary transition-all" />
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full mt-2 shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:-translate-y-0.5 transition-all">Access Ledger</button>
+                </form>
+
+                <!-- Register Form -->
+                <form id="register-form" class="w-full hidden flex-col gap-4">
+                    <div class="form-control w-full">
+                        <label class="label"><span class="label-text">Account Name</span></label>
+                        <input type="text" id="reg-name" required placeholder="e.g. Savings Account" class="input input-bordered w-full bg-base-100/50 focus:border-primary transition-all" />
+                    </div>
+                    <div class="form-control w-full">
+                        <label class="label"><span class="label-text">Email Address</span></label>
+                        <input type="email" id="reg-email" required placeholder="user@domain.com" class="input input-bordered w-full bg-base-100/50 focus:border-primary transition-all" />
+                    </div>
+                    <div class="form-control w-full">
+                        <label class="label"><span class="label-text">Password</span></label>
+                        <input type="password" id="reg-password" required minlength="6" placeholder="Min 6 characters" class="input input-bordered w-full bg-base-100/50 focus:border-primary transition-all" />
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full mt-2 shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:-translate-y-0.5 transition-all">Initialize Account</button>
+                </form>
             </div>
-
-            <form id="login-form" class="auth-form active-form">
-                <div class="input-group">
-                    <input type="email" id="login-email" required placeholder=" ">
-                    <label>Email Address</label>
-                </div>
-                <div class="input-group">
-                    <input type="password" id="login-password" required placeholder=" ">
-                    <label>Password</label>
-                </div>
-                <button type="submit" class="primary-btn pulse">Access Ledger</button>
-            </form>
-
-            <form id="register-form" class="auth-form hidden">
-                <div class="input-group">
-                    <input type="text" id="reg-name" required placeholder=" ">
-                    <label>Account Name</label>
-                </div>
-                <div class="input-group">
-                    <input type="email" id="reg-email" required placeholder=" ">
-                    <label>Email Address</label>
-                </div>
-                <div class="input-group">
-                    <input type="password" id="reg-password" required placeholder=" " minlength="6">
-                    <label>Password (Min 6 chars)</label>
-                </div>
-                <button type="submit" class="primary-btn">Initialize Account</button>
-            </form>
         </div>
     </div>
 
-    <!-- Dashboard Section (Visible when logged in) -->
-    <div id="dashboard-section" class="dashboard-container hidden">
-        <nav class="navbar glass-nav">
-            <div class="nav-content">
-                <h2 class="brand-title-small">NEXUS<span class="highlight">LEDGER</span></h2>
-                <div class="user-controls">
-                    <span id="user-email-display" class="user-tag">user@email.com</span>
-                    <button id="logout-btn" class="secondary-btn btn-small">Disconnect</button>
-                </div>
+    <!-- Dashboard Section -->
+    <div id="dashboard-section" class="hidden flex flex-col min-h-screen">
+        
+        <!-- Navbar -->
+        <div class="navbar bg-base-200/80 backdrop-blur-md sticky top-0 z-50 border-b border-white/5 px-4 lg:px-8">
+            <div class="flex-1">
+                <a class="text-xl font-bold tracking-wider cursor-pointer">NEXUS<span class="text-primary">LEDGER</span></a>
             </div>
-        </nav>
+            <div class="flex-none gap-4">
+                <span id="user-email-display" class="hidden sm:inline-block text-sm text-base-content/70">user@email.com</span>
+                <button id="logout-btn" class="btn btn-ghost btn-sm text-error hover:bg-error/20">Disconnect</button>
+            </div>
+        </div>
 
-        <main class="dashboard-grid">
-            <!-- Balance Card -->
-            <section class="card balance-card glass-panel slide-up">
-                <h3>Total Liquidity</h3>
-                <h1 class="balance-amount" id="main-balance">$0.00</h1>
-                <p class="account-id-label">Account ID: <span id="main-account-id">...</span></p>
-            </section>
-
-            <!-- Actions Card -->
-            <section class="card actions-card glass-panel slide-up delay-1">
-                <h3>Initiate Transfer</h3>
-                <form id="transaction-form">
-                    <div class="input-group">
-                        <select id="tx-type" required>
-                            <option value="DEPOSIT">Deposit Funds</option>
-                            <option value="WITHDRAWAL">Withdraw Funds</option>
-                            <option value="TRANSFER">Transfer to User</option>
-                        </select>
+        <!-- Main Content -->
+        <main class="flex-1 container mx-auto p-4 lg:p-8 max-w-6xl">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Liquidity Overview (Spans full width on mobile, 1 col on desktop) -->
+                <div class="lg:col-span-3">
+                    <div class="stats shadow-2xl bg-base-200/50 backdrop-blur-md border border-white/5 w-full flex flex-col sm:flex-row rounded-3xl overflow-hidden">
+                        <div class="stat text-center sm:text-left py-8">
+                            <div class="stat-title uppercase tracking-widest font-semibold text-base-content/60 mb-2">Total Liquidity</div>
+                            <div id="main-balance" class="stat-value text-5xl lg:text-7xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent pb-2">$0.00</div>
+                            <div class="stat-desc mt-2 text-xs font-mono opacity-50 flex items-center justify-center sm:justify-start gap-2">
+                                <span>Account ID:</span>
+                                <span id="main-account-id" class="badge badge-outline badge-sm select-all">...</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="input-group">
-                        <input type="number" id="tx-amount" step="0.01" min="0.01" required placeholder=" ">
-                        <label>Amount (USD)</label>
-                    </div>
-                    <div class="input-group hidden" id="tx-destination-group">
-                        <input type="text" id="tx-destination" placeholder=" ">
-                        <label>Destination Account ID</label>
-                    </div>
-                    <div class="input-group">
-                        <input type="text" id="tx-desc" placeholder=" ">
-                        <label>Memo / Description</label>
-                    </div>
-                    <button type="submit" class="primary-btn w-full">Execute Protocol</button>
-                </form>
-            </section>
-
-            <!-- Ledger History -->
-            <section class="card history-card glass-panel slide-up delay-2">
-                <div class="history-header">
-                    <h3>Ledger History</h3>
-                    <button id="refresh-btn" class="icon-btn" title="Sync Ledger">↻</button>
                 </div>
-                <div class="transaction-list" id="transaction-list">
-                    <!-- Dynamic transactions injected here -->
-                    <div class="empty-state">Synchronizing ledger data...</div>
+
+                <!-- Transaction Form -->
+                <div class="card bg-base-200/50 backdrop-blur-md shadow-xl border border-white/5 lg:col-span-1 h-fit">
+                    <div class="card-body">
+                        <h2 class="card-title text-xl mb-4">Initiate Protocol</h2>
+                        <form id="transaction-form" class="flex flex-col gap-4">
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">Operation Type</span></label>
+                                <select id="tx-type" class="select select-bordered bg-base-100/50 focus:border-primary transition-all w-full">
+                                    <option value="DEPOSIT">Deposit Funds</option>
+                                    <option value="WITHDRAWAL">Withdraw Funds</option>
+                                    <option value="TRANSFER">Transfer to User</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">Amount (USD)</span></label>
+                                <label class="input input-bordered flex items-center gap-2 bg-base-100/50 focus-within:border-primary transition-all">
+                                    <span class="text-base-content/50">$</span>
+                                    <input type="number" id="tx-amount" step="0.01" min="0.01" required class="grow" placeholder="0.00" />
+                                </label>
+                            </div>
+                            
+                            <div id="tx-destination-group" class="form-control hidden">
+                                <label class="label"><span class="label-text">Destination Account ID</span></label>
+                                <input type="text" id="tx-destination" placeholder="Enter recipient ID" class="input input-bordered font-mono text-sm bg-base-100/50 focus:border-primary transition-all" />
+                            </div>
+                            
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">Memo / Description</span></label>
+                                <input type="text" id="tx-desc" placeholder="Optional reference" class="input input-bordered bg-base-100/50 focus:border-primary transition-all" />
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-full mt-4 shadow-lg shadow-primary/20 hover:-translate-y-0.5 transition-all">Execute</button>
+                        </form>
+                    </div>
                 </div>
-            </section>
+
+                <!-- Ledger History -->
+                <div class="card bg-base-200/50 backdrop-blur-md shadow-xl border border-white/5 lg:col-span-2">
+                    <div class="card-body p-0 sm:p-6">
+                        <div class="flex items-center justify-between p-6 sm:p-0 mb-2">
+                            <h2 class="card-title text-xl">Ledger History</h2>
+                            <button id="refresh-btn" class="btn btn-circle btn-ghost btn-sm" title="Sync Ledger">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                            </button>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="table w-full table-zebra">
+                                <thead>
+                                    <tr>
+                                        <th class="bg-base-300/30 text-base-content/70">Type & Memo</th>
+                                        <th class="bg-base-300/30 text-base-content/70">Date</th>
+                                        <th class="bg-base-300/30 text-base-content/70">Status</th>
+                                        <th class="bg-base-300/30 text-base-content/70 text-right">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transaction-list">
+                                    <!-- Dynamic rows injected here -->
+                                    <tr><td colspan="4" class="text-center py-8 text-base-content/50">Synchronizing ledger data...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </main>
     </div>
 
-    <!-- Modal for Pending Approvals -->
-    <div id="approval-modal" class="modal-backdrop hidden">
-        <div class="modal-content glass-panel">
-            <h3>Authorization Required</h3>
-            <p>A <span id="modal-tx-type" class="highlight-text">TRANSFER</span> of <strong id="modal-tx-amount">$0.00</strong> is currently <span class="badge badge-pending">PENDING</span>.</p>
-            <p class="text-muted mt-2">Do you authorize the execution of this transaction into the immutable ledger?</p>
-            <div class="modal-actions mt-4">
-                <button id="modal-cancel" class="secondary-btn">Abort</button>
-                <button id="modal-approve" class="primary-btn pulse">Authorize & Complete</button>
+    <!-- Approval Modal (DaisyUI Modal) -->
+    <dialog id="approval-modal" class="modal modal-bottom sm:modal-middle backdrop-blur-sm">
+        <div class="modal-box border border-white/10 bg-base-200/90 shadow-2xl">
+            <h3 class="font-bold text-lg text-warning flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                Authorization Required
+            </h3>
+            <div class="py-4 space-y-2">
+                <p>A <span id="modal-tx-type" class="badge badge-primary badge-outline font-bold">TRANSFER</span> of <strong id="modal-tx-amount" class="text-xl">$0.00</strong> is currently <span class="badge badge-warning badge-sm">PENDING</span>.</p>
+                <p class="text-sm text-base-content/70">Do you authorize the execution of this transaction into the immutable ledger?</p>
+            </div>
+            
+            <div class="modal-action">
+                <button id="modal-cancel" class="btn btn-ghost">Abort</button>
+                <button id="modal-approve" class="btn btn-warning shadow-lg shadow-warning/20">Authorize & Complete</button>
             </div>
         </div>
-    </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
 
     <script src="app.js"></script>
 </body>

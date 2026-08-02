@@ -112,8 +112,9 @@ function setupEventListeners() {
     elements.refreshBtn.addEventListener('click', refreshLedger);
 
     // Modal
-    elements.modalCancel.addEventListener('click', () => {
-        elements.modal.classList.add('hidden');
+    elements.modalCancel.addEventListener('click', (e) => {
+        e.preventDefault();
+        elements.modal.close();
         state.pendingTxId = null;
     });
     
@@ -233,31 +234,28 @@ function renderTransactions(transactions) {
     elements.txList.innerHTML = '';
     
     if (transactions.length === 0) {
-        elements.txList.innerHTML = '<div class="empty-state">No transactions found in ledger.</div>';
+        elements.txList.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-base-content/50">No transactions found in ledger.</td></tr>';
         return;
     }
 
     transactions.forEach(tx => {
         const isCredit = tx.entryType === 'CREDIT';
         const sign = isCredit ? '+' : '-';
-        const colorClass = isCredit ? 'credit' : 'debit';
+        const colorClass = isCredit ? 'text-success font-bold' : 'text-error font-bold';
         
-        // Define badge color based on tx.status
-        let badgeClass = 'badge-completed';
-        if (tx.status === 'PENDING') badgeClass = 'badge-pending';
-        if (tx.status === 'FAILED') badgeClass = 'badge-failed';
+        let badgeClass = 'badge-success badge-outline';
+        if (tx.status === 'PENDING') badgeClass = 'badge-warning badge-outline';
+        if (tx.status === 'FAILED') badgeClass = 'badge-error badge-outline';
 
-        const el = document.createElement('div');
-        el.className = 'tx-item';
+        const el = document.createElement('tr');
         el.innerHTML = `
-            <div class="tx-info">
-                <span class="tx-title">${tx.type} ${tx.description ? `(${tx.description})` : ''}</span>
-                <span class="tx-date">${new Date(tx.date).toLocaleString()}</span>
-                <span class="badge ${badgeClass}">${tx.status}</span>
-            </div>
-            <div class="tx-amount-group">
-                <span class="tx-amount ${colorClass}">${sign}$${tx.amount.toFixed(2)}</span>
-            </div>
+            <td>
+                <div class="font-bold">${tx.type}</div>
+                ${tx.description ? `<div class="text-xs opacity-50">${tx.description}</div>` : ''}
+            </td>
+            <td class="text-sm opacity-80">${new Date(tx.date).toLocaleString()}</td>
+            <td><span class="badge badge-sm ${badgeClass}">${tx.status}</span></td>
+            <td class="text-right ${colorClass}">${sign}$${tx.amount.toFixed(2)}</td>
         `;
         elements.txList.appendChild(el);
     });
@@ -290,7 +288,7 @@ async function handleTransactionInitiate(e) {
         state.pendingTxId = data.transaction._id;
         elements.modalType.textContent = payload.type;
         elements.modalAmount.textContent = `$${payload.amount.toFixed(2)}`;
-        elements.modal.classList.remove('hidden');
+        elements.modal.showModal();
         
         elements.txForm.reset();
         elements.txType.dispatchEvent(new Event('change'));
@@ -308,11 +306,11 @@ async function handleTransactionComplete() {
     try {
         await apiCall(`/transactions/${state.pendingTxId}/complete`, 'POST');
         showToast('Transaction fully authorized and recorded', 'success');
-        elements.modal.classList.add('hidden');
+        elements.modal.close();
         state.pendingTxId = null;
         refreshLedger();
     } catch (err) {
-        elements.modal.classList.add('hidden');
+        elements.modal.close();
     } finally {
         elements.modalApprove.textContent = originalText;
         elements.modalApprove.disabled = false;
@@ -321,14 +319,17 @@ async function handleTransactionComplete() {
 
 // --- Utilities ---
 function showToast(message, type = 'success') {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
     const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
+    toast.className = `alert ${alertClass} shadow-lg`;
+    toast.innerHTML = `<span>${message}</span>`;
     
     elements.toastContainer.appendChild(toast);
     
     setTimeout(() => {
-        toast.style.animation = 'slideInRight 0.3s ease reverse forwards';
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-20px)';
+        toast.style.transition = 'all 0.3s ease';
         setTimeout(() => toast.remove(), 300);
     }, 4000);
 }
