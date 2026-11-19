@@ -8,7 +8,7 @@ const connectToDB= require("./src/config/db")
 
 connectToDB()
 
-app.listen(3000, ()=>
-{
-    console.log("APP IS RUNNING at http://localhost:3000");
+const PORT = process.env.PORT || 3000
+app.listen(PORT, () => {
+    console.log(`APP IS RUNNING at port ${PORT}`);
 })
